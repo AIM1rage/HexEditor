@@ -1,5 +1,5 @@
 import abc
-from hex_file import HexFile
+from editor.hex_file import HexFile
 
 
 class Command(abc.ABC):

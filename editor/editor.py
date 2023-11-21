@@ -1,4 +1,5 @@
 import os.path
+import binascii
 from hex_file import HexFile
 
 
@@ -8,21 +9,14 @@ class HexEditor:
 
 
 def main():
-    text = 'aaaaaaa0a0a0a0dddd'
-    text_aboba = 'eeee'
+    text = '482254cec0dee8fb1caed0c4080045000028af7540008006e7dcc0a80066d5b4ccbaea7101bbe93702b37dee313950110200c3160000'
     path = 'some_file'
     mode = 'r+b' if os.path.isfile(path) else 'w+b'
     with open('some_file', mode) as file:
         file = HexFile(file)
         print(file.read())
 
-        file.write(b'\xdd', 5)
-        file.write(b'\xdd', 6)
-        file.write(b'\xdd', 7)
-        file.write(b'\xdd', 8)
-        print(file.read())
-
-        file.delete(5)
+        file.write(binascii.unhexlify(text), 3)
         print(file.read())
 
 
