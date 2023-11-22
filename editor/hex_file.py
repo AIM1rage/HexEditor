@@ -15,8 +15,12 @@ class HexFile:
         return self.file.read(1)
     
     def read_window(self, rows_count, columns_count, row_index) -> bytes:
-        self.file.seek(row_index * columns_count, os.SEEK_SET)
-        return self.file.read(rows_count * columns_count)
+        return self.read_chunk(row_index * columns_count, rows_count * columns_count)
+
+
+    def read_chunk(self, position, length) -> bytes: 
+        self.file.seek(position, os.SEEK_SET)
+        return self.file.read(length)
 
     def insert(self, hex_char: bytes, position: int):
         self.file.seek(position)
@@ -25,8 +29,9 @@ class HexFile:
         self.file.seek(position)
         self.file.write(hex_char)
 
-        self.file.seek(position + 1)
+        self.file.seek(position + len(hex_char))
         self.file.write(buffer)
+
 
     def write(self, hex_char: bytes, position: int):
         self.file.seek(position, os.SEEK_SET)
