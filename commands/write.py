@@ -1,18 +1,19 @@
 from commands.command import Command
-from editor.hex_file import HexFile
+from editor.editor import HexEditor
 
 
 class WriteCommand(Command):
     old_hex_char: bytes
+    position: int
 
-    def __init__(self, file: HexFile, new_char: bytes, position: int):
-        super().__init__(file)
+    def __init__(self, hex_editor: HexEditor, new_char: bytes):
+        super().__init__(hex_editor)
         self.new_char: bytes = new_char
-        self.position: int = position
 
     def undo(self):
-        self.hex_editor.write(self.old_hex_char, self.position)
+        self.hex_editor.file.write(self.old_hex_char, self.position)
 
     def do(self):
-        self.old_hex_char = self.hex_editor.read_hex_char(self.position)
-        self.hex_editor.write(self.new_char, self.position)
+        self.position = self.hex_editor.pointer
+        self.old_hex_char = self.hex_editor.file.read_hex_char(self.position)
+        self.hex_editor.file.write(self.new_char, self.position)
