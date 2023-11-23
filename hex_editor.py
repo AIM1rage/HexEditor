@@ -12,36 +12,38 @@ OFFSET_X = 24
 
 def process_key(hex_editor: HexEditor, key):
     match key:
-        case curses.KEY_UP:
+        case 'KEY_UP':
             if hex_editor.row_index == 0 and hex_editor.row_offset > 0:
                 hex_editor.row_offset -= 1
             elif hex_editor.row_index > 0:
                 hex_editor.row_index -= 1
-        case curses.KEY_DOWN:
+        case 'KEY_DOWN':
             if hex_editor.row_index >= HexEditor.ROWS_COUNT - 1:
                 hex_editor.row_offset += 1
             else:
                 hex_editor.row_index += 1
-        case curses.KEY_LEFT:
+        case 'KEY_LEFT':
             if hex_editor.column_index >= 0:
                 if hex_editor.cell_index == 1:
                     hex_editor.cell_index = 0
                 elif hex_editor.column_index > 0:
                     hex_editor.column_index -= 1
                     hex_editor.cell_index = 1
-        case curses.KEY_RIGHT:
+        case 'KEY_RIGHT':
             if hex_editor.column_index <= HexEditor.COLUMNS_COUNT - 1:
                 if hex_editor.cell_index == 0:
                     hex_editor.cell_index = 1
                 elif hex_editor.column_index < HexEditor.COLUMNS_COUNT - 1:
                     hex_editor.column_index += 1
                     hex_editor.cell_index = 0
-        case curses.KEY_DC:
+        case 'KEY_DC':
             hex_editor.execute_command(DeleteCommand(hex_editor))
         case _:
-            if key == ord(','):
+            with open('aboba', 'wb') as file:
+                file.write(key.encode())
+            if key == '':
                 hex_editor.undo()
-            elif key == ord('.'):
+            elif key == '':
                 hex_editor.do()
 
 
@@ -80,7 +82,7 @@ def main(main_screen, filename):
         while True:
             main_screen.clear()
             print_window(main_screen, hex_editor)
-            key = main_screen.getch()
+            key = main_screen.getkey()
             if key == ord('q'):
                 break
             else:
