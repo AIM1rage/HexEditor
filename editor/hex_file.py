@@ -11,8 +11,7 @@ class HexFile:
         return self.file.read()
 
     def read_hex_char(self, position: int) -> bytes:
-        self.file.seek(position, os.SEEK_SET)
-        return self.file.read(1)
+        return self.read_chunk(position, 1)
 
     def read_window(self, rows_count, columns_count, row_index) -> bytes:
         return self.read_chunk(row_index * columns_count,

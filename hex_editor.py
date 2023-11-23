@@ -5,9 +5,11 @@ from utils import render_string_from_bytes
 from editor.hex_file import HexFile
 from editor.editor import HexEditor
 from commands.delete import DeleteCommand
+from commands.write import WriteCommand
 
 OFFSET_Y = 1
 OFFSET_X = 24
+HEX_CHARS = '1234567890abcdef'
 
 
 def process_key(hex_editor: HexEditor, key):
@@ -38,13 +40,14 @@ def process_key(hex_editor: HexEditor, key):
                     hex_editor.cell_index = 0
         case 'KEY_DC':
             hex_editor.execute_command(DeleteCommand(hex_editor))
+        case '':
+            hex_editor.undo()
+        case '':
+            hex_editor.do()
         case _:
-            with open('aboba', 'wb') as file:
-                file.write(key.encode())
-            if key == '':
-                hex_editor.undo()
-            elif key == '':
-                hex_editor.do()
+            if key.lower() in HEX_CHARS:
+                hex_editor.execute_command(WriteCommand(hex_editor, key.lower()))
+                process_key(hex_editor, 'KEY_RIGHT')
 
 
 def print_window(main_screen, hex_editor: HexEditor):
