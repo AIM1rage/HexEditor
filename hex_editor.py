@@ -1,11 +1,14 @@
 import os
 import sys
 import curses
+import pyperclip
+import binascii
 from utils import render_string_from_bytes
 from editor.hex_file import HexFile
 from editor.editor import HexEditor
 from commands.delete import DeleteCommand
 from commands.write import WriteCommand
+from commands.paste import PasteCommand
 
 OFFSET_Y = 1
 OFFSET_X = 24
@@ -44,10 +47,32 @@ def process_key(hex_editor: HexEditor, key):
             hex_editor.undo()
         case '':
             hex_editor.do()
+        case '':
+            chars = parse_input_from_clipboard()
+            hex_editor.execute_command(PasteCommand(hex_editor, chars))
         case _:
             if key.lower() in HEX_CHARS:
                 hex_editor.execute_command(WriteCommand(hex_editor, key.lower()))
                 process_key(hex_editor, 'KEY_RIGHT')
+
+
+def parse_input_from_clipboard():
+    data = pyperclip.paste()
+    res = []
+    for ch in data:
+        if ch in HEX_CHARS:
+            res.append(ch)
+        else:
+            res.append('0')
+    if len(res) % 2 != 0:
+        last = res.pop()
+        res.append('0')
+        res.append(last)
+    hexes = "".join(res).encode()
+    return binascii.unhexlify(hexes)
+
+    
+
 
 
 def print_window(main_screen, hex_editor: HexEditor):
