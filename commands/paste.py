@@ -11,9 +11,9 @@ class PasteCommand(Command):
         self.position: int = position
 
     def undo(self):
-        self.file.write(self.old_hex_chars, self.position)
+        self.hex_editor.write(self.old_hex_chars, self.position)
 
     def do(self):
-        self.old_hex_chars = self.file.read_chunk(self.position, len(self.new_chars))
+        self.old_hex_chars = self.hex_editor.read_chunk(self.position, len(self.new_chars))
 
-        self.file.write(self.new_chars, self.position)
+        self.hex_editor.write(self.new_chars, self.position)

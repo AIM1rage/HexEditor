@@ -4,9 +4,45 @@ import curses
 from utils import render_string_from_bytes
 from editor.hex_file import HexFile
 from editor.editor import HexEditor
+from commands.delete import DeleteCommand
 
 OFFSET_Y = 1
 OFFSET_X = 24
+
+
+def process_key(hex_editor: HexEditor, key):
+    match key:
+        case curses.KEY_UP:
+            if hex_editor.row_index == 0 and hex_editor.row_offset > 0:
+                hex_editor.row_offset -= 1
+            elif hex_editor.row_index > 0:
+                hex_editor.row_index -= 1
+        case curses.KEY_DOWN:
+            if hex_editor.row_index >= HexEditor.ROWS_COUNT - 1:
+                hex_editor.row_offset += 1
+            else:
+                hex_editor.row_index += 1
+        case curses.KEY_LEFT:
+            if hex_editor.column_index >= 0:
+                if hex_editor.cell_index == 1:
+                    hex_editor.cell_index = 0
+                elif hex_editor.column_index > 0:
+                    hex_editor.column_index -= 1
+                    hex_editor.cell_index = 1
+        case curses.KEY_RIGHT:
+            if hex_editor.column_index <= HexEditor.COLUMNS_COUNT - 1:
+                if hex_editor.cell_index == 0:
+                    hex_editor.cell_index = 1
+                elif hex_editor.column_index < HexEditor.COLUMNS_COUNT - 1:
+                    hex_editor.column_index += 1
+                    hex_editor.cell_index = 0
+        case curses.KEY_DC:
+            hex_editor.execute_command(DeleteCommand(hex_editor))
+        case _:
+            if key == ord(','):
+                hex_editor.undo()
+            elif key == ord('.'):
+                hex_editor.do()
 
 
 def print_window(main_screen, hex_editor: HexEditor):
@@ -48,7 +84,7 @@ def main(main_screen, filename):
             if key == ord('q'):
                 break
             else:
-                hex_editor.process_key(key)
+                process_key(hex_editor, key)
 
             main_screen.refresh()
         curses.endwin()
@@ -56,6 +92,6 @@ def main(main_screen, filename):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print_window("Please provide a filename.")
+        print("Please provide a filename.")
         sys.exit(1)
     curses.wrapper(main, sys.argv[1])

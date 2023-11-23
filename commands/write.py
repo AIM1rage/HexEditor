@@ -11,8 +11,8 @@ class WriteCommand(Command):
         self.position: int = position
 
     def undo(self):
-        self.file.write(self.old_hex_char, self.position)
+        self.hex_editor.write(self.old_hex_char, self.position)
 
     def do(self):
-        self.old_hex_char = self.file.read_hex_char(self.position)
-        self.file.write(self.new_char, self.position)
+        self.old_hex_char = self.hex_editor.read_hex_char(self.position)
+        self.hex_editor.write(self.new_char, self.position)

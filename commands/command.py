@@ -1,10 +1,9 @@
 import abc
-from editor.hex_file import HexFile
 
 
 class Command(abc.ABC):
-    def __init__(self, file: HexFile):
-        self.file: HexFile = file
+    def __init__(self, hex_editor):
+        self.hex_editor = hex_editor
 
     @abc.abstractmethod
     def do(self):

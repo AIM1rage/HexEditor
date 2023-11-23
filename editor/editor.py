@@ -1,9 +1,9 @@
-import curses
 from editor.hex_file import HexFile
+from commands.command import Command
 
 
 class HexEditor:
-    ROWS_COUNT = 8
+    ROWS_COUNT = 16
     COLUMNS_COUNT = 16
 
     def __init__(self, file: HexFile):
@@ -13,7 +13,10 @@ class HexEditor:
         self.row_index: int = 0
         self.cell_index: int = 0
 
-        self.row_offset = 0
+        self.row_offset: int = 0
+
+        self.do_stack: list[Command] = []
+        self.undo_stack: list[Command] = []
 
     @property
     def rows(self):
@@ -34,29 +37,23 @@ class HexEditor:
     def cursor_x(self):
         return 2 * self.column_index + self.column_index + self.cell_index
 
-    def process_key(self, key):
-        match key:
-            case curses.KEY_UP:
-                if self.row_index == 0 and self.row_offset > 0:
-                    self.row_offset -= 1
-                elif self.row_index > 0:
-                    self.row_index -= 1
-            case curses.KEY_DOWN:
-                if self.row_index >= HexEditor.ROWS_COUNT - 1:
-                    self.row_offset += 1
-                else:
-                    self.row_index += 1
-            case curses.KEY_LEFT:
-                if self.column_index >= 0:
-                    if self.cell_index == 1:
-                        self.cell_index = 0
-                    elif self.column_index > 0:
-                        self.column_index -= 1
-                        self.cell_index = 1
-            case curses.KEY_RIGHT:
-                if self.column_index <= HexEditor.COLUMNS_COUNT - 1:
-                    if self.cell_index == 0:
-                        self.cell_index = 1
-                    elif self.column_index < HexEditor.COLUMNS_COUNT - 1:
-                        self.column_index += 1
-                        self.cell_index = 0
+    @property
+    def pointer(self):
+        return ((self.row_index + self.row_offset) *
+                HexEditor.COLUMNS_COUNT + self.column_index)
+
+    def execute_command(self, command: Command):
+        self.undo_stack.append(command)
+        command.do()
+        if self.do_stack:
+            self.do_stack.clear()
+
+    def do(self):
+        if self.do_stack:
+            self.undo_stack.append(self.do_stack.pop())
+            self.undo_stack[-1].do()
+
+    def undo(self):
+        if self.undo_stack:
+            self.do_stack.append(self.undo_stack.pop())
+            self.do_stack[-1].undo()
