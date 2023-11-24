@@ -1,7 +1,7 @@
 import os
 import sys
 import curses
-from utils import render_string_from_bytes, parse_input_from_clipboard
+from utils import render_string_from_bytes
 from editor.hex_file import HexFile, HEX_CHARS
 from editor.editor import HexEditor
 from commands.delete import DeleteCommand
@@ -33,8 +33,7 @@ def process_key(hex_editor: HexEditor, key):
             hex_editor.redo()
         case '':
             # Ctrl + P - paste
-            chars = parse_input_from_clipboard()
-            hex_editor.execute_command(PasteCommand(hex_editor, chars))
+            hex_editor.execute_command(PasteCommand(hex_editor))
         case _:
             if key.lower() in HEX_CHARS:
                 hex_editor.execute_command(
@@ -63,6 +62,7 @@ def print_window(main_screen, hex_editor: HexEditor):
 
 
 def main(main_screen, filename):
+    curses.initscr()
     mode = 'r+b' if os.path.isfile(filename) else 'w+b'
     with open(filename, mode) as file:
         hex_file = HexFile(file)

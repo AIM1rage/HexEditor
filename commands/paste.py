@@ -1,11 +1,30 @@
+import binascii
+import pyperclip
+from editor.hex_file import HEX_CHARS
 from commands.command import Command
 from editor.editor import HexEditor
 
 
+def parse_input_from_clipboard():
+    data = pyperclip.paste()
+    res = []
+    for ch in data:
+        if ch in HEX_CHARS:
+            res.append(ch)
+        else:
+            res.append('0')
+    if len(res) % 2 != 0:
+        last = res.pop()
+        res.append('0')
+        res.append(last)
+    hexes = "".join(res).encode()
+    return binascii.unhexlify(hexes)
+
+
 class PasteCommand(Command):
-    def __init__(self, hex_editor: HexEditor, new_chars: bytes):
+    def __init__(self, hex_editor: HexEditor):
         super().__init__(hex_editor)
-        self.new_chars: bytes = new_chars
+        self.new_chars: bytes = parse_input_from_clipboard()
         self.old_hex_chars: bytes = (self
                                      .hex_editor
                                      .file

@@ -1,3 +1,4 @@
+from collections import deque
 from editor.hex_file import HexFile
 from commands.command import Command
 
@@ -15,8 +16,8 @@ class HexEditor:
 
         self.row_offset: int = 0
 
-        self.redo_stack: list[Command] = []
-        self.undo_stack: list[Command] = []
+        self.redo_stack: deque[Command] = deque()
+        self.undo_stack: deque[Command] = deque(maxlen=100)
 
     @property
     def rows(self):
