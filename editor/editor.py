@@ -27,7 +27,7 @@ class HexEditor:
         self.undo_stack: deque[Command] = deque(maxlen=100)
 
     @property
-    def rows(self):
+    def rows(self) -> list[bytes]:
         raw_window = self.file.read_window(HexEditor.ROWS_COUNT,
                                            HexEditor.COLUMNS_COUNT,
                                            self.row_offset,
@@ -38,17 +38,17 @@ class HexEditor:
                 ] for i in range(HexEditor.ROWS_COUNT)]
 
     @property
-    def cursor_y(self):
+    def cursor_y(self) -> int:
         return self.row_index
 
     @property
-    def cursor_x(self):
+    def cursor_x(self) -> int:
         if self.context == EditMode.HEX:
             return 3 * self.column_index + self.cell_index
         return self.column_index
 
     @property
-    def pointer(self):
+    def pointer(self) -> int:
         return ((self.row_index + self.row_offset) *
                 HexEditor.COLUMNS_COUNT + self.column_index
                 )

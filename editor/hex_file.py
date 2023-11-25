@@ -9,7 +9,7 @@ class HexFile:
         self.file: BinaryIO = file
 
     @property
-    def length(self):
+    def length(self) -> int:
         return os.path.getsize(self.file.name)
 
     def read(self) -> bytes:
@@ -19,8 +19,8 @@ class HexFile:
     def read_hex_char(self, position: int) -> bytes:
         return self.read_chunk(position, 1)
 
-    def read_window(self, rows_count, columns_count, row_index) -> bytes:
-        return self.read_chunk(row_index * columns_count,
+    def read_window(self, rows_count, columns_count, row_offset) -> bytes:
+        return self.read_chunk(row_offset * columns_count,
                                rows_count * columns_count)
 
     def read_chunk(self, position, length) -> bytes:
@@ -39,9 +39,9 @@ class HexFile:
         self.file.seek(position + len(hex_chars))
         self.file.write(buffer)
 
-    def write(self, hex_char: bytes, position: int):
+    def write(self, hex_chars: bytes, position: int):
         self.file.seek(position, os.SEEK_SET)
-        self.file.write(hex_char)
+        self.file.write(hex_chars)
 
     def delete(self, position: int):
         self.file.seek(position + 1, os.SEEK_SET)

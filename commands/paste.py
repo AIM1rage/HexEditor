@@ -5,9 +5,8 @@ from commands.command import Command
 from editor.editor import EditMode, HexEditor
 
 
-def parse_input_from_clipboard(mode: EditMode):
+def parse_input_from_clipboard(mode: EditMode) -> bytes:
     data = pyperclip.paste()
-    answer: bytes
     if mode == EditMode.HEX:
         res = []
         for ch in data:

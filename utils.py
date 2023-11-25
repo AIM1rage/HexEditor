@@ -31,3 +31,7 @@ def get_char_from_byte(byte: bytes) -> str:
         return char if char.isprintable() else '.'
     except UnicodeDecodeError:
         return '.'
+
+
+def get_char_from_window(window, y: int, x: int):
+    return chr(window.inch(y, x) & 0b11111111)

@@ -22,15 +22,15 @@ class WriteCommand(Command):
         unhex_old_char = unhex_old_char if unhex_old_char else '00'
         if self.context == EditMode.HEX:
             if self.position.cell_index == 0:
-                new_hex_cell = binascii.unhexlify(self.new_hex_char +
+                new_hex_char = binascii.unhexlify(self.new_hex_char +
                                                   unhex_old_char[1]
                                                   )
             else:
-                new_hex_cell = binascii.unhexlify(unhex_old_char[0] +
+                new_hex_char = binascii.unhexlify(unhex_old_char[0] +
                                                   self.new_hex_char
                                                   )
         else:
-            new_hex_cell = self.new_hex_char.encode()
+            new_hex_char = self.new_hex_char.encode()
 
-        self.hex_editor.file.write(new_hex_cell, self.pointer)
+        self.hex_editor.file.write(new_hex_char, self.pointer)
         self.hex_editor.move_cursor_right()
