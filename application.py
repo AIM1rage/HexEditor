@@ -7,7 +7,7 @@ from commands.write import WriteCommand
 from commands.paste import PasteCommand
 
 OFFSET_Y = 1
-HEX_OFFSET_X = 24
+HEX_OFFSET_X = 16
 CHAR_OFFSET_X = 72
 
 
@@ -20,10 +20,10 @@ class HexApplication:
         while True:
             self.window.clear()
             self.render_window()
-            self.process_key()
+            self.handle()
             self.window.refresh()
 
-    def process_key(self):
+    def handle(self):
         key = self.window.getkey()
         match key:
             case 'KEY_UP':
@@ -54,9 +54,10 @@ class HexApplication:
             case '	':
                 # Ctrl + I - context switching
                 self.hex_editor.switch_context()
+            case 'CTL_DOWN':
+                # Ctrl + Down - add cursor
+                ...
             case _:
-                with open('aboba', 'w') as file:
-                    file.write(key)
                 if self.hex_editor.context == EditMode.HEX:
                     if key.lower() in HEX_CHARS:
                         self.hex_editor.execute_command(WriteCommand(
@@ -64,7 +65,7 @@ class HexApplication:
                             key.lower(),
                         ))
                 else:
-                    if key.isprintable():
+                    if key.isprintable() and len(key) == 1:
                         self.hex_editor.execute_command(
                             WriteCommand(self.hex_editor, key))
 
@@ -104,7 +105,7 @@ class HexApplication:
     def render_title(self) -> str:
         position_string = hex(self.hex_editor.pointer)[2:].rjust(10, '0')
         title_string = ' '.join(f'0{c}' for c in HEX_CHARS)
-        return f'{position_string}\t|\t{title_string}'
+        return f'{position_string}\t{title_string}\t|\tDecoded text'
 
     def render_string_from_bytes(self,
                                  index: int,
@@ -129,7 +130,7 @@ class HexApplication:
         row_index_string = row_index.rjust(10, '0')
 
         return '\t'.join(
-            (row_index_string, '|', cells_string, bytes_decoded_string))
+            (row_index_string, cells_string, '|', bytes_decoded_string))
 
     def get_char_from_window(self, y: int, x: int) -> str:
         return chr(self.window.inch(y, x) & 0b11111111)
@@ -139,5 +140,5 @@ class HexApplication:
         try:
             char = byte.decode()
             return char if char.isprintable() else '.'
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, curses.error):
             return '.'

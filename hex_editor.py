@@ -25,5 +25,5 @@ if __name__ == "__main__":
         sys.exit(1)
     try:
         curses.wrapper(main, sys.argv[1])
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, curses.error):
         print('Bye!')

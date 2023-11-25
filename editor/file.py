@@ -1,3 +1,4 @@
+import sys
 import os
 from typing import BinaryIO
 
@@ -10,7 +11,7 @@ class HexFile:
 
     @property
     def length(self) -> int:
-        return os.path.getsize(self.file.name)
+        return sys.getsizeof(self.file)
 
     def read(self) -> bytes:
         self.file.seek(0, os.SEEK_SET)
@@ -46,11 +47,12 @@ class HexFile:
     def delete(self, position: int):
         self.file.seek(position + 1, os.SEEK_SET)
         buffer = self.file.read()
-        if not buffer:
-            return
 
         self.file.seek(position, os.SEEK_SET)
         self.file.truncate()
+
+        if not buffer:
+            return
 
         self.file.seek(position, os.SEEK_SET)
         self.file.write(buffer)
