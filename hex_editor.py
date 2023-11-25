@@ -3,13 +3,16 @@ import sys
 import curses
 from utils import render_string_from_bytes, render_title
 from editor.hex_file import HexFile, HEX_CHARS
-from editor.editor import HexEditor
+from editor.editor import HexEditor, EditMode
 from commands.delete import DeleteCommand
 from commands.write import WriteCommand
 from commands.paste import PasteCommand
 
-OFFSET_Y = 1
-OFFSET_X = 24
+HEX_OFFSET_Y = 1
+HEX_OFFSET_X = 24
+
+CHR_OFFSET_Y = 1
+CHR_OFFSET_X = 72
 
 
 def process_key(hex_editor: HexEditor, key):
@@ -34,6 +37,9 @@ def process_key(hex_editor: HexEditor, key):
         case '':
             # Ctrl + P - paste
             hex_editor.execute_command(PasteCommand(hex_editor))
+        case '	':
+            # Ctrl + I - context switching
+            hex_editor.switch_context()
         case _:
             if key.lower() in HEX_CHARS:
                 hex_editor.execute_command(
@@ -54,10 +60,16 @@ def render_window(main_screen, hex_editor: HexEditor):
                 hex_editor.COLUMNS_COUNT,
             ),
         )
-    main_screen.addstr(hex_editor.cursor_y + OFFSET_Y,
-                       hex_editor.cursor_x + OFFSET_X,
-                       '',
-                       )
+    if hex_editor.context == EditMode.HEX:
+        main_screen.addstr(hex_editor.cursor_y + HEX_OFFSET_Y,
+                           hex_editor.cursor_x + HEX_OFFSET_X,
+                           '',
+                           )
+    else:
+        main_screen.addstr(hex_editor.cursor_y + CHR_OFFSET_Y,
+                           hex_editor.cursor_x + CHR_OFFSET_X,
+                           '',
+                           )
 
 
 def main(main_screen, filename):
