@@ -19,7 +19,8 @@ class Command(abc.ABC):
                                        self.hex_editor.column_index,
                                        self.hex_editor.cell_index,
                                        self.hex_editor.row_offset,
-                                       )
+                                    )
+        self.context = self.hex_editor.context
 
     @abc.abstractmethod
     def do(self):
