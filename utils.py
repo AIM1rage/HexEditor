@@ -20,6 +20,11 @@ def render_string_from_bytes(unhex_bytes, current_row_index, columns_count):
         (row_index_string, '|', cells_string, bytes_decoded_string))
 
 
+def render_title(pointer: int):
+    position_string = hex(pointer)[2:].rjust(10, '0')
+    return f'{position_string}\t|\t00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f'
+
+
 def get_char_from_byte(byte: bytes) -> str:
     try:
         char = byte.decode()

@@ -1,7 +1,7 @@
 import os
 import sys
 import curses
-from utils import render_string_from_bytes
+from utils import render_string_from_bytes, render_title
 from editor.hex_file import HexFile, HEX_CHARS
 from editor.editor import HexEditor
 from commands.delete import DeleteCommand
@@ -40,9 +40,8 @@ def process_key(hex_editor: HexEditor, key):
                     WriteCommand(hex_editor, key.lower()))
 
 
-def print_window(main_screen, hex_editor: HexEditor):
-    position_string = hex(hex_editor.pointer)[2:].rjust(10, '0')
-    title = f'{position_string}\t|\t00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f'
+def render_window(main_screen, hex_editor: HexEditor):
+    title = render_title(hex_editor.pointer)
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
     main_screen.addstr(0, 0, title, curses.color_pair(1))
     for index, row in enumerate(hex_editor.rows):
@@ -73,7 +72,7 @@ def main(main_screen, filename):
         main_screen.nodelay(0)
         while True:
             main_screen.clear()
-            print_window(main_screen, hex_editor)
+            render_window(main_screen, hex_editor)
             key = main_screen.getkey()
             if key.lower() == 'q':
                 break
