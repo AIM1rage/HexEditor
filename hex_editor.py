@@ -41,9 +41,15 @@ def process_key(hex_editor: HexEditor, key):
             # Ctrl + I - context switching
             hex_editor.switch_context()
         case _:
-            if key.lower() in HEX_CHARS:
-                hex_editor.execute_command(
-                    WriteCommand(hex_editor, key.lower()))
+            if hex_editor.context == EditMode.HEX:
+                if key.lower() in HEX_CHARS:
+                    hex_editor.execute_command(WriteCommand(
+                        hex_editor,
+                        key.lower(),
+                    ))
+            else:
+                if key.isprintable():
+                    hex_editor.execute_command(WriteCommand(hex_editor, key))
 
 
 def render_window(main_screen, hex_editor: HexEditor):
@@ -61,19 +67,17 @@ def render_window(main_screen, hex_editor: HexEditor):
             ),
         )
     if hex_editor.context == EditMode.HEX:
-        main_screen.addstr(hex_editor.cursor_y + HEX_OFFSET_Y,
-                           hex_editor.cursor_x + HEX_OFFSET_X,
-                           '',
-                           )
+        offset_y, offset_x = HEX_OFFSET_Y, HEX_OFFSET_X
+
     else:
-        main_screen.addstr(hex_editor.cursor_y + CHR_OFFSET_Y,
-                           hex_editor.cursor_x + CHR_OFFSET_X,
-                           '',
-                           )
+        offset_y, offset_x = CHR_OFFSET_Y, CHR_OFFSET_X
+    main_screen.addstr(hex_editor.cursor_y + offset_y,
+                       hex_editor.cursor_x + offset_x,
+                       '',
+                       )
 
 
 def main(main_screen, filename):
-    curses.initscr()
     mode = 'r+b' if os.path.isfile(filename) else 'w+b'
     with open(filename, mode) as file:
         hex_file = HexFile(file)

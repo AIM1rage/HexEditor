@@ -93,7 +93,7 @@ class HexEditor:
             self.row_index += 1
 
     def move_cursor_left(self):
-        if self.cell_index == 1:
+        if self.context == EditMode.HEX and self.cell_index == 1:
             self.cell_index = 0
         elif self.column_index > 0:
             self.column_index -= 1
@@ -104,7 +104,7 @@ class HexEditor:
             self.cell_index = 1
 
     def move_cursor_right(self):
-        if self.cell_index == 0:
+        if self.context == EditMode.HEX and self.cell_index == 0:
             self.cell_index = 1
         elif self.column_index < HexEditor.COLUMNS_COUNT - 1:
             self.column_index += 1
