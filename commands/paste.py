@@ -1,13 +1,13 @@
 import binascii
 import pyperclip
-from editor.hex_file import HEX_CHARS
+from editor.file import HEX_CHARS
 from commands.command import Command
 from editor.editor import EditMode, HexEditor
 
 
-def parse_input_from_clipboard(mode: EditMode) -> bytes:
+def parse_input_from_clipboard(context: EditMode) -> bytes:
     data = pyperclip.paste()
-    if mode == EditMode.HEX:
+    if context == EditMode.HEX:
         res = []
         for ch in data:
             if ch in HEX_CHARS:

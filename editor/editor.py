@@ -1,12 +1,12 @@
 from collections import deque
-from editor.hex_file import HexFile
+from editor.file import HexFile
 from commands.command import Command
 from enum import IntEnum
 
 
 class EditMode(IntEnum):
     HEX = 0x00
-    CHR = 0x01
+    CHAR = 0x01
 
 
 class HexEditor:
@@ -42,9 +42,11 @@ class HexEditor:
         return self.row_index
 
     @property
-    def cursor_x(self) -> int:
-        if self.context == EditMode.HEX:
-            return 3 * self.column_index + self.cell_index
+    def hex_cursor_x(self) -> int:
+        return 3 * self.column_index + self.cell_index
+
+    @property
+    def char_cursor_x(self) -> int:
         return self.column_index
 
     @property
@@ -54,7 +56,7 @@ class HexEditor:
                 )
 
     def switch_context(self):
-        self.context = (EditMode.CHR if self.context == EditMode.HEX else
+        self.context = (EditMode.CHAR if self.context == EditMode.HEX else
                         EditMode.HEX)
 
     def execute_command(self, command: Command):
