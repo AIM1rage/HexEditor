@@ -17,7 +17,7 @@ class DeleteCommand(Command):
         self.hex_editor.set_cursor(self.position)
 
     def do(self):
-        if abs(self.hex_editor.pointer - self.hex_editor.file.length) > 50:
+        if abs(self.hex_editor.pointer - self.hex_editor.file.length) > 10 ** 9:
             if not self.checked:
                 raise Exception()
         self.hex_editor.set_cursor(self.position)
