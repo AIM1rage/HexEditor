@@ -37,11 +37,14 @@ class HexApplication:
             case 'KEY_DC':
                 # Delete - character deletion
                 try:
-                    self.hex_editor.execute_command(DeleteCommand(self.hex_editor, False))
-                except:
-                    if self.confirm_removal():
-                        self.hex_editor.execute_command(DeleteCommand(self.hex_editor, True))
-
+                    self.hex_editor.execute_command(
+                        DeleteCommand(self.hex_editor, False),
+                    )
+                except UserWarning:
+                    if self.get_confirmation():
+                        self.hex_editor.execute_command(
+                            DeleteCommand(self.hex_editor, True),
+                        )
             case '':
                 # Ctrl + Z - undo
                 self.hex_editor.undo()
@@ -81,12 +84,11 @@ class HexApplication:
         self.add_hex_cursor()
         self.add_char_cursor()
 
-
-    def confirm_removal(self):
-        self.window.addstr(self.hex_editor.ROWS_COUNT + 2, 0, "do you really want to delete unit in the begin of BIG file? (y/n)")
+    def get_confirmation(self):
+        self.window.addstr(self.hex_editor.ROWS_COUNT + 2, 0,
+                           "do you really want to delete unit in the begin of BIG file? (y/n)")
         key = self.window.getkey()
         return key == 'y' or key == 'Y'
-
 
     def add_hex_cursor(self):
         cursor_y = self.hex_editor.cursor_y + OFFSET_Y

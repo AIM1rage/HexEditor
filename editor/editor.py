@@ -60,11 +60,7 @@ class HexEditor:
                         EditMode.HEX)
 
     def execute_command(self, command: Command):
-        try:
-            command.do()
-        except Exception as e:
-            raise e
-        self.undo_stack.append(command)
+        command.do()
         if self.redo_stack:
             self.redo_stack.clear()
 

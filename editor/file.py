@@ -1,4 +1,3 @@
-import sys
 import os
 from typing import BinaryIO
 
@@ -11,7 +10,7 @@ class HexFile:
 
     @property
     def length(self) -> int:
-        return sys.getsizeof(self.file)
+        return os.path.getsize(self.file.name)
 
     def read(self) -> bytes:
         self.file.seek(0, os.SEEK_SET)
