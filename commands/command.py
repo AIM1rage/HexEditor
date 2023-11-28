@@ -15,10 +15,10 @@ class Command(abc.ABC):
         self.hex_editor = hex_editor
         self.pointer = self.hex_editor.pointer
         self.old_length = self.hex_editor.file.length
-        self.position = CursorPosition(self.hex_editor.row_index,
-                                       self.hex_editor.column_index,
-                                       self.hex_editor.cell_index,
-                                       self.hex_editor.row_offset,
+        self.position = CursorPosition(self.hex_editor.cursor.row_index,
+                                       self.hex_editor.cursor.column_index,
+                                       self.hex_editor.cursor.cell_index,
+                                       self.hex_editor.cursor.row_offset,
                                        )
         self.context = self.hex_editor.context
 

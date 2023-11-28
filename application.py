@@ -1,7 +1,8 @@
 import curses
 import binascii
 from editor.file import HEX_CHARS
-from editor.editor import HexEditor, EditMode
+from editor.editor import HexEditor
+from editor.cursor import EditMode, ROWS_COUNT, COLUMNS_COUNT
 from commands.delete import DeleteCommand
 from commands.write import WriteCommand
 from commands.paste import PasteCommand
@@ -27,13 +28,13 @@ class HexApplication:
         key = self.window.getkey()
         match key:
             case 'KEY_UP':
-                self.hex_editor.move_cursor_up()
+                self.hex_editor.move_cursors_up()
             case 'KEY_DOWN':
-                self.hex_editor.move_cursor_down()
+                self.hex_editor.move_cursors_down()
             case 'KEY_LEFT':
-                self.hex_editor.move_cursor_left()
+                self.hex_editor.move_cursors_left()
             case 'KEY_RIGHT':
-                self.hex_editor.move_cursor_right()
+                self.hex_editor.move_cursors_right()
             case 'KEY_DC':
                 # Delete - character deletion
                 try:
@@ -77,7 +78,7 @@ class HexApplication:
         self.window.addstr(0, 0, title, curses.A_BOLD)
         for index, row in enumerate(self.hex_editor.rows):
             string = self.render_string_from_bytes(
-                self.hex_editor.row_offset + index,
+                self.hex_editor.cursor.row_offset + index,
                 row,
             )
             self.window.addstr(index + 1, 0, string)
@@ -85,7 +86,7 @@ class HexApplication:
         self.add_char_cursor()
 
     def get_confirmation(self):
-        self.window.addstr(self.hex_editor.ROWS_COUNT + 2, 0,
+        self.window.addstr(ROWS_COUNT + 2, 0,
                            "do you really want to delete unit in the begin of BIG file? (y/n)")
         key = self.window.getkey()
         return key == 'y' or key == 'Y'
@@ -121,11 +122,11 @@ class HexApplication:
                                  unhex_bytes: bytes,
                                  ) -> str:
         hex_bytes = binascii.hexlify(unhex_bytes)
-        current_row_index = self.hex_editor.row_offset + index
+        current_row_index = self.hex_editor.cursor.row_offset + index
 
         cells = [hex_bytes[i: i + 2].decode() for i in
                  range(0, len(hex_bytes), 2)]
-        cells.extend('..' for _ in range(self.hex_editor.COLUMNS_COUNT -
+        cells.extend('..' for _ in range(COLUMNS_COUNT -
                                          len(cells)))
         cells_string = ' '.join(cell for cell in cells)
 
@@ -135,7 +136,7 @@ class HexApplication:
             range(len(unhex_bytes))]
         bytes_decoded_string = ''.join(bytes_decoded)
 
-        row_index = hex(current_row_index * self.hex_editor.COLUMNS_COUNT)[2:]
+        row_index = hex(current_row_index * COLUMNS_COUNT)[2:]
         row_index_string = row_index.rjust(10, '0')
 
         return '\t'.join(

@@ -1,5 +1,6 @@
 from commands.command import Command
 from editor.editor import HexEditor
+from editor.cursor import Cursor
 
 
 class DeleteCommand(Command):

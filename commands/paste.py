@@ -2,7 +2,8 @@ import binascii
 import pyperclip
 from editor.file import HEX_CHARS
 from commands.command import Command
-from editor.editor import EditMode, HexEditor
+from editor.editor import HexEditor
+from editor.cursor import Cursor, EditMode
 
 
 def parse_input_from_clipboard(context: EditMode) -> bytes:
@@ -46,5 +47,5 @@ class PasteCommand(Command):
         self.hex_editor.set_cursor(self.position)
         self.hex_editor.file.write(self.new_chars, self.pointer)
         for _ in range(len(self.new_chars) * 2):
-            self.hex_editor.move_cursor_right()
+            self.hex_editor.move_cursors_right()
         self.hex_editor.cell_index = 0

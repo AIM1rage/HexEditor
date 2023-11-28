@@ -1,6 +1,7 @@
 import binascii
 from commands.command import Command
-from editor.editor import HexEditor, EditMode
+from editor.editor import HexEditor
+from editor.cursor import Cursor, EditMode
 
 
 class WriteCommand(Command):
@@ -33,4 +34,4 @@ class WriteCommand(Command):
             new_hex_char = self.new_hex_char.encode()
 
         self.hex_editor.file.write(new_hex_char, self.pointer)
-        self.hex_editor.move_cursor_right()
+        self.hex_editor.move_cursors_right()
