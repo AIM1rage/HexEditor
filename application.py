@@ -84,7 +84,6 @@ class HexApplication:
                     if key.isprintable() and len(key) == 1:
                         self.hex_editor.execute_command(
                             WriteCommand(self.hex_editor, key))
-        self.message = f'{len(self.hex_editor.cursors)=}'
 
     def render_window(self):
         title = self.render_title()

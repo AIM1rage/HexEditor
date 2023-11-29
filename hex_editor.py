@@ -1,6 +1,6 @@
 import os
-import sys
 import curses
+import argparse
 from editor.file import HexFile
 from editor.editor import HexEditor
 from application import HexApplication
@@ -19,11 +19,26 @@ def main(main_window, filename):
         curses.endwin()
 
 
+usage = '''
+To run program enter:
+python hex_editor.py [filename]
+
+Combinations:
+Ctrl + , - undo
+Ctrl + . - redo
+Ctrl + P - paste string from clipboard
+Ctrl + Up - add upper cursor
+Ctrl + Down - add lower cursor
+'''
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please provide a filename.")
-        sys.exit(1)
-    try:
-        curses.wrapper(main, sys.argv[1])
-    except (KeyboardInterrupt, curses.error):
-        print('Bye!')
+    parser = argparse.ArgumentParser(prog='Hex Editor',
+                                     usage=usage,
+                                     description='Simple hex editor with a console interface',
+                                     )
+    parser.add_argument('filename',
+                        type=str,
+                        help='Absolute or relative path to the file',
+                        )
+    args = parser.parse_args()
+    curses.wrapper(main, args.filename)
