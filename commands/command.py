@@ -1,25 +1,13 @@
 import abc
-from collections import namedtuple
-
-CursorPosition = namedtuple('CursorPosition', [
-    'row_index',
-    'column_index',
-    'cell_index',
-    'row_offset',
-],
-                            )
+from copy import deepcopy
 
 
 class Command(abc.ABC):
     def __init__(self, hex_editor):
         self.hex_editor = hex_editor
-        self.pointer = self.hex_editor.pointer
         self.old_length = self.hex_editor.file.length
-        self.position = CursorPosition(self.hex_editor.cursor.row_index,
-                                       self.hex_editor.cursor.column_index,
-                                       self.hex_editor.cursor.cell_index,
-                                       self.hex_editor.cursor.row_offset,
-                                       )
+        self.cursors = deepcopy(self.hex_editor.cursors)
+        self.row_offset = hex_editor.row_offset
         self.context = self.hex_editor.context
 
     @abc.abstractmethod
@@ -29,3 +17,11 @@ class Command(abc.ABC):
     @abc.abstractmethod
     def undo(self):
         ...
+
+    def restore_editor_state(self):
+        self.hex_editor.cursors = deepcopy(self.cursors)
+        self.hex_editor.row_offset = self.row_offset
+        self.hex_editor.context = self.context
+
+    def restore_file_length(self):
+        self.hex_editor.file.truncate(self.old_length)

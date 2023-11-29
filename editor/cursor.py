@@ -33,8 +33,8 @@ class Cursor:
 
     @property
     def pointer(self) -> int:
-        return ((self.row_index + self.row_offset) *
-                COLUMNS_COUNT + self.column_index
+        return ((self.row_index + self.row_offset) * COLUMNS_COUNT +
+                self.column_index
                 )
 
     def switch_context(self):
@@ -81,3 +81,11 @@ class Cursor:
             self.move_down()
             self.column_index = 0
             self.cell_index = 0
+
+    def __eq__(self, other):
+        if id(self) == id(other):
+            return True
+        if Cursor != type(other):
+            return False
+        return ((self.column_index, self.row_index, self.row_offset) ==
+                (other.column_index, other.row_index, other.row_offset))

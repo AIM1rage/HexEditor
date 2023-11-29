@@ -1,3 +1,4 @@
+from copy import copy
 from collections import deque
 from editor.file import HexFile
 from editor.cursor import Cursor, EditMode, ROWS_COUNT, COLUMNS_COUNT
@@ -9,16 +10,17 @@ class HexEditor:
         self.file: HexFile = file
         self.context: EditMode = EditMode.HEX
 
-        self.cursor: Cursor = Cursor()
+        self.cursors: list[Cursor] = [Cursor()]
+        self.row_offset: int = 0
 
         self.redo_stack: deque[Command] = deque()
-        self.undo_stack: deque[Command] = deque(maxlen=100)
+        self.undo_stack: deque[Command] = deque(maxlen=1000)
 
     @property
     def rows(self) -> list[bytes]:
         raw_window = self.file.read_window(ROWS_COUNT,
                                            COLUMNS_COUNT,
-                                           self.cursor.row_offset,
+                                           self.row_offset,
                                            )
         return [raw_window[
                 COLUMNS_COUNT * i:
@@ -26,29 +28,30 @@ class HexEditor:
                 ] for i in range(ROWS_COUNT)]
 
     @property
-    def cursor_y(self) -> int:
-        return self.cursor.y
+    def upper_cursor(self) -> Cursor:
+        return min(self.cursors, key=lambda c: (
+            c.row_offset + c.row_index, c.column_index
+        ))
 
     @property
-    def hex_cursor_x(self) -> int:
-        return self.cursor.hex_x
-
-    @property
-    def char_cursor_x(self) -> int:
-        return self.cursor.char_x
+    def lower_cursor(self) -> Cursor:
+        return max(self.cursors, key=lambda c: (
+            c.row_offset + c.row_index, c.column_index
+        ))
 
     @property
     def pointer(self) -> int:
-        return self.cursor.pointer
+        return self.upper_cursor.pointer
 
     def switch_context(self):
         self.context = (EditMode.CHAR if self.context == EditMode.HEX else
                         EditMode.HEX)
-        self.cursor.switch_context()
+        for cursor in self.cursors:
+            cursor.switch_context()
 
     def execute_command(self, command: Command):
-        self.undo_stack.append(command)
         command.do()
+        self.undo_stack.append(command)
         if self.redo_stack:
             self.redo_stack.clear()
 
@@ -63,16 +66,70 @@ class HexEditor:
             self.redo_stack[-1].undo()
 
     def set_cursor(self, position: tuple[int, int, int, int]):
-        self.cursor.set_cursor(position)
+        self.cursors[0].set_cursor(position)
+
+    def merge_cursors(self):
+        new_cursors = []
+        for cursor in self.cursors:
+            if cursor not in new_cursors:
+                new_cursors.append(cursor)
+        self.cursors = new_cursors
+
+    def add_upper_cursor(self):
+        if self.upper_cursor.row_index > 0:
+            new_upper_cursor = copy(self.upper_cursor)
+            new_upper_cursor.row_index -= 1
+            self.cursors.append(new_upper_cursor)
+
+    def add_lower_cursor(self):
+        if self.lower_cursor.row_index < ROWS_COUNT - 1:
+            new_lower_cursor = copy(self.lower_cursor)
+            new_lower_cursor.row_index += 1
+            self.cursors.append(new_lower_cursor)
 
     def move_cursors_up(self):
-        self.cursor.move_up()
+        upper_cursor = self.upper_cursor
+        upper_cursor.move_up()
+        if self.row_offset != upper_cursor.row_offset:
+            self.update_row_offset(upper_cursor.row_offset)
+        else:
+            for cursor in self.cursors:
+                if cursor != upper_cursor:
+                    cursor.move_up()
 
     def move_cursors_down(self):
-        self.cursor.move_down()
+        lower_cursor = self.lower_cursor
+        lower_cursor.move_down()
+        if self.row_offset != lower_cursor.row_offset:
+            self.update_row_offset(lower_cursor.row_offset)
+        else:
+            for cursor in self.cursors:
+                if cursor != lower_cursor:
+                    cursor.move_down()
 
     def move_cursors_left(self):
-        self.cursor.move_left()
+        upper_cursor = self.upper_cursor
+        upper_cursor.move_left()
+        for cursor in self.cursors:
+            if cursor != upper_cursor:
+                cursor.move_left()
+                if self.row_offset != upper_cursor.row_offset:
+                    cursor.row_offset = upper_cursor.row_offset
+                    cursor.row_index += 1
+        self.row_offset = upper_cursor.row_offset
 
     def move_cursors_right(self):
-        self.cursor.move_right()
+        lower_cursor = self.lower_cursor
+        lower_cursor.move_right()
+        for cursor in self.cursors:
+            if cursor != lower_cursor:
+                cursor.move_right()
+                if self.row_offset != lower_cursor.row_offset:
+                    cursor.row_offset = lower_cursor.row_offset
+                    cursor.row_index -= 1
+        self.row_offset = lower_cursor.row_offset
+
+    def update_row_offset(self, row_offset: int):
+        self.row_offset = row_offset
+        for cursor in self.cursors:
+            cursor.row_offset = self.row_offset

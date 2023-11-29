@@ -1,7 +1,7 @@
 import os
 from typing import BinaryIO
 
-HEX_CHARS = '1234567890abcdef'
+HEX_CHARS = '0123456789abcdef'
 
 
 class HexFile:
@@ -44,14 +44,13 @@ class HexFile:
         self.file.write(hex_chars)
 
     def delete(self, position: int):
+        if position >= self.length:
+            return
         self.file.seek(position + 1, os.SEEK_SET)
         buffer = self.file.read()
 
         self.file.seek(position, os.SEEK_SET)
         self.file.truncate()
-
-        if not buffer:
-            return
 
         self.file.seek(position, os.SEEK_SET)
         self.file.write(buffer)
